@@ -2,7 +2,7 @@ use ash::{vk, Entry};
 use raw_window_handle::{HasRawDisplayHandle, HasRawWindowHandle};
 
 use super::utils::{QueueFamilyIndices, UniformBufferObject};
-use super::vertex::{Vertex, INDICES, VERTICES, generate_wireframe_vertices};
+use super::vertex::generate_flat_world;
 use super::{buffers, commands, descriptors, images, instance, pipeline, swapchain};
 
 pub struct VulkanApp {
@@ -39,6 +39,7 @@ pub struct VulkanApp {
     pub(super) wireframe_vertex_buffer: vk::Buffer,
     pub(super) wireframe_vertex_buffer_memory: vk::DeviceMemory,
     pub(super) wireframe_vertex_count: u32,
+    pub(super) index_count: u32,
     pub(super) index_buffer: vk::Buffer,
     pub(super) index_buffer_memory: vk::DeviceMemory,
     pub(super) uniform_buffers: Vec<vk::Buffer>,
@@ -72,14 +73,14 @@ impl VulkanApp {
         let (device, graphics_queue, present_queue) =
             instance::create_logical_device(&instance, physical_device, &queue_family_indices);
 
+        let (world_vertices, world_indices, wire_vertices) = generate_flat_world(20, 20);
         let (vertex_buffer, vertex_buffer_memory) = buffers::create_vertex_buffer(
             &instance,
             &device,
             physical_device,
             &queue_family_indices,
-            &VERTICES,
+            &world_vertices,
         );
-        let wire_vertices = generate_wireframe_vertices(24);
         let wireframe_vertex_count = wire_vertices.len() as u32;
         let (wireframe_vertex_buffer, wireframe_vertex_buffer_memory) =
             buffers::create_vertex_buffer(
@@ -89,12 +90,13 @@ impl VulkanApp {
                 &queue_family_indices,
                 &wire_vertices,
             );
+        let index_count = world_indices.len() as u32;
         let (index_buffer, index_buffer_memory) = buffers::create_index_buffer(
             &instance,
             &device,
             physical_device,
             &queue_family_indices,
-            &INDICES,
+            &world_indices,
         );
 
         let swapchain_loader = ash::extensions::khr::Swapchain::new(&instance, &device);
@@ -198,6 +200,7 @@ impl VulkanApp {
             wireframe_vertex_buffer,
             wireframe_vertex_buffer_memory,
             wireframe_vertex_count,
+            index_count,
             index_buffer,
             index_buffer_memory,
             uniform_buffers,

@@ -3,7 +3,7 @@ use ash::vk;
 use cgmath::{Matrix4, SquareMatrix};
 
 
-use super::{utils::{QueueFamilyIndices, UniformBufferObject}, vertex::{Vertex, INDICES}, VulkanApp};
+use super::{utils::{QueueFamilyIndices, UniformBufferObject}, vertex::Vertex, VulkanApp};
 
 pub fn create_index_buffer(
     instance: &ash::Instance,
@@ -12,7 +12,7 @@ pub fn create_index_buffer(
     _indices: &QueueFamilyIndices,
     data: &[u16],
 ) -> (vk::Buffer, vk::DeviceMemory) {
-    let buffer_size = (std::mem::size_of::<u16>() * INDICES.len()) as vk::DeviceSize;
+    let buffer_size = (std::mem::size_of::<u16>() * data.len()) as vk::DeviceSize;
     let (buffer, buffer_memory) = create_buffer(
         instance,
         device,

@@ -144,3 +144,44 @@ pub fn generate_wireframe_vertices(divisions: u32) -> Vec<Vertex> {
 
     vertices
 }
+
+pub fn generate_flat_world(width: u32, depth: u32) -> (Vec<Vertex>, Vec<u16>, Vec<Vertex>) {
+    let mut vertices = Vec::new();
+    let mut indices = Vec::new();
+    let base_wire = generate_wireframe_vertices(24);
+    let mut wire_vertices = Vec::new();
+
+    for x in 0..width {
+        for y in 0..depth {
+            let offset = [
+                x as f32 - width as f32 / 2.0 + 0.0,
+                y as f32 - depth as f32 / 2.0 + 0.0,
+                0.5,
+            ];
+            let base_index = vertices.len() as u16;
+            for v in VERTICES.iter() {
+                vertices.push(Vertex {
+                    pos: [
+                        v.pos[0] + offset[0],
+                        v.pos[1] + offset[1],
+                        v.pos[2] + offset[2],
+                    ],
+                    color: v.color,
+                });
+            }
+            indices.extend(INDICES.iter().map(|&i| i + base_index));
+            for wv in base_wire.iter() {
+                wire_vertices.push(Vertex {
+                    pos: [
+                        wv.pos[0] + offset[0],
+                        wv.pos[1] + offset[1],
+                        wv.pos[2] + offset[2],
+                    ],
+                    color: wv.color,
+                });
+            }
+        }
+    }
+
+    (vertices, indices, wire_vertices)
+}
