@@ -1,6 +1,6 @@
 use ash::{vk};
 
-use super::{utils::QueueFamilyIndices, vertex::{INDICES}, VulkanApp};
+use super::{utils::QueueFamilyIndices, VulkanApp};
 
 pub fn create_command_pool(device: &ash::Device, indices: &QueueFamilyIndices) -> vk::CommandPool {
     let pool_info = vk::CommandPoolCreateInfo::builder()
@@ -76,7 +76,7 @@ impl VulkanApp {
                 &[],
             );
             self.device
-                .cmd_draw_indexed(command_buffer, INDICES.len() as u32, 1, 0, 0, 0);
+                .cmd_draw_indexed(command_buffer, self.index_count, 1, 0, 0, 0);
             self.device.cmd_bind_pipeline(
                 command_buffer,
                 vk::PipelineBindPoint::GRAPHICS,
